@@ -11,7 +11,7 @@ param location string
 
 param appServicePlanName string = ''
 param backendServiceName string = ''
-param resourceGroupName string = ''
+param resourceGroupName string = 'rg-YVR-OpenAI-ChatbotV3-UE-dev'
 
 param searchServiceName string = ''
 param searchServiceResourceGroupName string = ''
@@ -27,9 +27,9 @@ param storageContainerName string = 'content'
 
 param openAiServiceName string = ''
 param openAiResourceGroupName string = ''
-param openAiResourceGroupLocation string = location
+// param openAiResourceGroupLocation string = location
 
-param openAiSkuName string = 'S0'
+// param openAiSkuName string = 'S0'
 
 param formRecognizerServiceName string = ''
 param formRecognizerResourceGroupName string = ''
@@ -39,10 +39,10 @@ param formRecognizerSkuName string = 'S0'
 
 param gptDeploymentName string = 'davinci'
 param gptDeploymentCapacity int = 30
-param gptModelName string = 'text-davinci-003'
+// param gptModelName string = 'text-davinci-003'
 param chatGptDeploymentName string = 'chat'
 param chatGptDeploymentCapacity int = 30
-param chatGptModelName string = 'gpt-35-turbo'
+// param chatGptModelName string = 'gpt-35-turbo'
 
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
@@ -50,6 +50,8 @@ param principalId string = ''
 var abbrs = loadJsonContent('abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
+
+// ******************* Original deployment has been done
 
 // Organize resources in a resource group
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -106,7 +108,7 @@ module backend 'core/host/appservice.bicep' = {
     appSettings: {
       AZURE_STORAGE_ACCOUNT: storage.outputs.name
       AZURE_STORAGE_CONTAINER: storageContainerName
-      AZURE_OPENAI_SERVICE: openAi.outputs.name
+      AZURE_OPENAI_SERVICE: 'cog-kx3offprz34bm'
       AZURE_SEARCH_INDEX: searchIndexName
       AZURE_SEARCH_SERVICE: searchService.outputs.name
       AZURE_OPENAI_GPT_DEPLOYMENT: gptDeploymentName
@@ -115,38 +117,38 @@ module backend 'core/host/appservice.bicep' = {
   }
 }
 
-module openAi 'core/ai/cognitiveservices.bicep' = {
-  name: 'openai'
-  scope: openAiResourceGroup
-  params: {
-    name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
-    location: openAiResourceGroupLocation
-    tags: tags
-    sku: {
-      name: openAiSkuName
-    }
-    deployments: [
-      {
-        name: gptDeploymentName
-        model: {
-          format: 'OpenAI'
-          name: gptModelName
-          version: '1'
-        }
-        capacity: gptDeploymentCapacity
-      }
-      {
-        name: chatGptDeploymentName
-        model: {
-          format: 'OpenAI'
-          name: chatGptModelName
-          version: '0301'
-        }
-        capacity: chatGptDeploymentCapacity
-      }
-    ]
-  }
-}
+// module openAi 'core/ai/cognitiveservices.bicep' = {
+//   name: 'openai'
+//   scope: openAiResourceGroup
+//   params: {
+//     name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
+//     location: openAiResourceGroupLocation
+//     tags: tags
+//     sku: {
+//       name: openAiSkuName
+//     }
+//     deployments: [
+//       {
+//         name: gptDeploymentName
+//         model: {
+//           format: 'OpenAI'
+//           name: gptModelName
+//           version: '1'
+//         }
+//         capacity: gptDeploymentCapacity
+//       }
+//       {
+//         name: chatGptDeploymentName
+//         model: {
+//           format: 'OpenAI'
+//           name: chatGptModelName
+//           version: '0301'
+//         }
+//         capacity: chatGptDeploymentCapacity
+//       }
+//     ]
+//   }
+// }
 
 module formRecognizer 'core/ai/cognitiveservices.bicep' = {
   name: 'formrecognizer'
@@ -311,7 +313,7 @@ output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
 
-output AZURE_OPENAI_SERVICE string = openAi.outputs.name
+output AZURE_OPENAI_SERVICE string = 'cog-kx3offprz34bm'
 output AZURE_OPENAI_RESOURCE_GROUP string = openAiResourceGroup.name
 output AZURE_OPENAI_GPT_DEPLOYMENT string = gptDeploymentName
 output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = chatGptDeploymentName
